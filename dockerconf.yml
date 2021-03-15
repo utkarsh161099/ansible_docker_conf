@@ -1,0 +1,36 @@
+- hosts: all
+  tasks:
+  - name: Setting docker yum conf
+    yum_repository:
+     name: Docker
+     description: desc for docker
+     baseurl: https://download.docker.com/linux/centos/docker-ce.repo
+     gpgcheck: no
+  - name: Installing docker community edition
+    command: "yum install docker-ce --nobest -y"
+
+  - service:
+       name: "docker"
+       state: started
+  - name: installing DOCKER sdk
+    command: "pip3 install docker"
+  - name: pulling docker image
+    docker_image:
+           name: httpd
+           source: pull
+  - name: copy my local file to managed node
+    copy:
+       src: /root/index1.html
+       dest: /root/index1.html
+
+  - name: start a container
+    docker_container:
+          name: mynewOS1
+          image: httpd
+          volumes:
+              - /root/index1.html:/usr/local/apache2/htdocs/index1.html/
+          ports:
+              - "82:80"
+          state: started
+          detach: yes
+
